@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "StudentHub Go Quality Check",
+      "trigger": "PostFileSave",
+      "description": "Runs go vet on the entire StudentHub module whenever a .go file inside the studenthub/ directory is saved. Surfaces vet errors immediately so they are fixed before they accumulate.",
+      "matcher": "studenthub[/\\\\].*\\.go$",
+      "action": {
+        "type": "command",
+        "command": "Set-Location studenthub; $result = go vet ./... 2>&1; if ($LASTEXITCODE -eq 0) { Write-Output $result; Write-Output '--- go vet passed ---' } else { Write-Output $result; Write-Output '--- go vet FAILED (see above) ---'; exit 1 }",
+        "timeout": 30
+      }
+    }
+  ]
+}
