@@ -1,0 +1,13 @@
+# StudentHub SQLite database (created at runtime by the Go server)
+studenthub/studenthub.db
+
+# Development seed data (not for production)
+studenthub/db/migrations/seed.sql
+
+# Go build output
+studenthub/studenthub
+studenthub/*.exe
+
+# Go test cache and coverage output
+studenthub/coverage.out
+studenthub/coverage.html

@@ -165,3 +165,59 @@ Before marking any frontend task complete, verify:
 - [ ] All buttons are keyboard-focusable and operable via Enter/Space
 - [ ] Success and error states are shown to the user (no silent failures)
 - [ ] No raw error strings from the server are displayed to the user
+
+---
+
+## MCP Integration — studenthub-sqlite
+
+StudentHub uses the **`studenthub-sqlite`** MCP server as a development-time tool configured in `mcp.json` at the repository root.
+
+### What it provides
+
+Direct structured access to the StudentHub SQLite database (`studenthub/studenthub.db`) via six tools:
+
+| Tool | What it does |
+|---|---|
+| `list_tables` | List all tables currently in the database |
+| `describe-table` | Show column definitions and types for a specific table |
+| `read_query` | Execute a SELECT query and return results |
+| `write_query` | Execute INSERT, UPDATE, or DELETE queries |
+| `create_table` | Execute a CREATE TABLE statement |
+| `append_insight` | Add a note to the in-memory business insights memo |
+
+### When to use it during development
+
+- **After running migrations (T-03):** Use `list_tables` and `describe-table` to confirm the schema was created correctly.
+- **After implementing a model function (T-06 through T-14):** Use `read_query` to verify records are actually persisted with the correct values.
+- **When debugging a test failure:** Use `read_query` to inspect the actual state of an in-memory or file DB without adding temporary log statements.
+- **When verifying cascade deletes:** After deleting a student via the API, use `read_query` to confirm their marks and attendance rows are gone.
+
+### Important constraints
+
+- **The MCP server is a development-time tool only.** It is not part of the production application architecture. It runs locally and must not be used in any deployment pipeline.
+- **Do not use `write_query` or `create_table` to bypass application validation or business rules.** All student/course/marks/attendance data must be created through the REST API so that validators run. Direct DB writes produce data that has never been validated and may violate application invariants.
+- **Do not perform destructive operations** (`DROP TABLE`, `DELETE FROM students`, etc.) unless explicitly requested and with full understanding of the consequences.
+- **The database does not exist until the application is first started** and `db.RunMigrations()` runs. `list_tables` will return an empty result (or an error) until then — this is expected during Phase 0.
+
+### Configuration
+
+The MCP server is configured in `.kiro/settings/mcp.json` at the workspace level:
+
+```json
+{
+  "mcpServers": {
+    "studenthub-sqlite": {
+      "command": "C:\\Users\\HP\\AppData\\Local\\Python\\pythoncore-3.14-64\\Scripts\\mcp-server-sqlite.exe",
+      "args": [
+        "--db-path",
+        "D:\\AWS projects\\kiro-university\\my-kiro-project\\studenthub\\studenthub.db"
+      ],
+      "disabled": false
+    }
+  }
+}
+```
+
+The `command` uses the full absolute path to `mcp-server-sqlite.exe` and `args` uses a full absolute path to the database file. `${workspaceFolder}` variable substitution is not supported in MCP `args` — literal paths are required.
+
+On a different machine, install the server with `py -m pip install mcp-server-sqlite==2025.4.25` and update both the `command` path and the `--db-path` value to match the local installation.

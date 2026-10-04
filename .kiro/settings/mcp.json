@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "studenthub-sqlite": {
+      "command": "C:\\Users\\HP\\AppData\\Local\\Python\\pythoncore-3.14-64\\Scripts\\mcp-server-sqlite.exe",
+      "args": [
+        "--db-path",
+        "D:\\AWS projects\\kiro-university\\my-kiro-project\\studenthub\\studenthub.db"
+      ],
+      "disabled": false
+    }
+  }
+}
