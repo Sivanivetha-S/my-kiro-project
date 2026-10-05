@@ -83,10 +83,16 @@ body { min-width: 320px; }
   /* Profile grid: info card sidebar + courses wide */
   .profile-grid { grid-template-columns: 320px 1fr; }
 
-  /* Content area max-width centering */
+  /*
+   * Content centering fix:
+   * DO NOT use margin: 0 auto on .content — it fights the flex layout
+   * and creates a gap between the sidebar edge and the content.
+   * Horizontal centering is achieved purely through padding.
+   * max-width is kept so very wide monitors don't stretch text lines.
+   */
   .content {
     max-width: 1200px;
-    margin: 0 auto;
+    /* margin: 0 auto  ← removed: was the cause of the sidebar gap */
   }
 }
 

@@ -345,8 +345,22 @@ img    { max-width: 100%; display: block; }
 }
 
 @media (min-width: 1024px) {
+  /*
+   * On desktop the sidebar switches from fixed-overlay to sticky in-flow.
+   * - position: sticky + top: 0 keeps it glued to the top while the page scrolls
+   * - flex-shrink: 0 prevents it from being squeezed by the content
+   * - height: 100vh makes it fill the viewport
+   * .layout uses align-items: flex-start so the sticky works correctly
+   *   (stretch would make the sidebar try to match the full content height)
+   */
+  .layout {
+    align-items: flex-start;
+  }
+
   .sidebar {
     position: sticky;
+    top: 0;
+    height: 100vh;
     transform: translateX(0);
     flex-shrink: 0;
   }
