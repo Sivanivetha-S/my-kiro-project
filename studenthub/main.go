@@ -44,23 +44,31 @@ func main() {
 	//    API routes are registered here by later tasks (T-08, T-11, etc.).
 	apiMux := http.NewServeMux()
 
+	// Resolve the frontend directory relative to main.go's source location.
+	// This keeps static file serving correct regardless of where `go run` is
+	// invoked from.
+	frontendDir := filepath.Join(projectRoot, "frontend")
+	fs := http.FileServer(http.Dir(frontendDir))
+
 	// Top-level mux routes:
 	//   /api/  → CORS middleware wrapping apiMux
-	//   /      → placeholder (replaced by T-05 with static file serving)
+	//   /css/  → static CSS files from frontend/css/
+	//   /js/   → static JS files from frontend/js/
+	//   /      → serves frontend/index.html (SPA shell)
 	mux := http.NewServeMux()
 
 	mux.Handle("/api/", middleware.CORS(apiMux))
 
-	// Placeholder root handler — returns a text response to confirm the server
-	// is up. T-05 replaces this with static file serving for the SPA shell.
+	// Static asset routes — strip the leading path prefix so the file server
+	// looks inside the correct subdirectory of frontend/.
+	mux.Handle("/css/", fs)
+	mux.Handle("/js/", fs)
+
+	// Root handler: serve index.html for all non-API, non-asset paths.
+	// This supports the SPA pattern — any unknown path returns the shell,
+	// and client-side routing handles the rest.
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
-			return
-		}
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("StudentHub API running")) //nolint:errcheck
+		http.ServeFile(w, r, filepath.Join(frontendDir, "index.html"))
 	})
 
 	// 6. Start the HTTP server.

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudentHub</title>
+  <link rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+  <!-- Skip navigation link for keyboard/screen-reader users (coding-standards.md) -->
+  <a class="skip-link" href="#app">Skip to main content</a>
+
+  <div class="layout">
+    <!-- Sidebar navigation -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar__header">
+        <span class="sidebar__logo">🎓</span>
+        <span class="sidebar__brand">StudentHub</span>
+        <button
+          class="sidebar__close"
+          id="sidebar-close"
+          aria-label="Close navigation menu"
+          aria-expanded="true"
+          aria-controls="sidebar"
+        >✕</button>
+      </div>
+
+      <nav aria-label="Site navigation">
+        <ul class="nav-list" role="list">
+          <li>
+            <a class="nav-link" href="#dashboard" data-route="dashboard">
+              <span class="nav-link__icon" aria-hidden="true">📊</span>
+              <span class="nav-link__label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" href="#students" data-route="students">
+              <span class="nav-link__icon" aria-hidden="true">👥</span>
+              <span class="nav-link__label">Students</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" href="#courses" data-route="courses">
+              <span class="nav-link__icon" aria-hidden="true">📚</span>
+              <span class="nav-link__label">Courses</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" href="#marks" data-route="marks">
+              <span class="nav-link__icon" aria-hidden="true">📝</span>
+              <span class="nav-link__label">Marks</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" href="#attendance" data-route="attendance">
+              <span class="nav-link__icon" aria-hidden="true">📅</span>
+              <span class="nav-link__label">Attendance</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main content area -->
+    <div class="main-wrapper">
+      <!-- Top bar (mobile) -->
+      <header class="topbar" role="banner">
+        <button
+          class="topbar__menu-btn"
+          id="menu-btn"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="sidebar"
+        >☰</button>
+        <span class="topbar__title">StudentHub</span>
+      </header>
+
+      <!-- Overlay for mobile sidebar -->
+      <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+      <!-- Page content rendered by app.js -->
+      <main id="app" class="content" tabindex="-1" aria-live="polite">
+        <!-- JavaScript renders page content here -->
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
