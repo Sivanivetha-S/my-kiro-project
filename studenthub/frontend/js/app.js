@@ -1,6 +1,9 @@
 /**
  * app.js — StudentHub SPA shell and hash-based router.
  *
+ * Layout change: vertical sidebar replaced with horizontal top navigation.
+ * All routing logic is unchanged.
+ *
  * Routing table:
  *   #landing             → pages/landing.js   (entry point — shown first)
  *   #dashboard           → pages/dashboard.js
@@ -14,7 +17,7 @@
  */
 
 // ----------------------------------------------------------------
-// Router
+// Router table
 // ----------------------------------------------------------------
 
 const routes = [
@@ -29,37 +32,27 @@ const routes = [
   { pattern: /^attendance$/,            page: 'attendance',     params: () => ({}) },
 ];
 
-/** Routes that render inside the full app shell (sidebar + topbar). */
-const APP_ROUTES = new Set(['dashboard', 'students', 'student-detail', 'courses', 'marks', 'attendance']);
-
 let currentController = null;
 
 // ----------------------------------------------------------------
-// Shell visibility
-// When on the landing page the sidebar/topbar shell is hidden so the
-// landing page occupies the full viewport. On any app route it is shown.
+// Shell visibility — hides the entire app layout on the landing page
 // ----------------------------------------------------------------
 
 function setShellVisible(visible) {
   const layout = document.getElementById('layout');
   if (!layout) return;
-  if (visible) {
-    layout.classList.remove('shell--hidden');
-  } else {
-    layout.classList.add('shell--hidden');
-  }
+  layout.classList.toggle('shell--hidden', !visible);
 }
 
 // ----------------------------------------------------------------
-// Router
+// Router — unchanged from previous implementation
 // ----------------------------------------------------------------
 
 async function navigate() {
   currentController?.abort();
   currentController = new AbortController();
 
-  // Default route: show the landing page when no hash is present.
-  const raw = window.location.hash.replace(/^#\/?/, '') || 'landing';
+  const raw      = window.location.hash.replace(/^#\/?/, '') || 'landing';
   const routeKey = raw.split('/')[0];
 
   let matched = null;
@@ -75,15 +68,11 @@ async function navigate() {
 
   const isLanding = matched?.page === 'landing';
 
-  // Show/hide the app shell.
   setShellVisible(!isLanding);
-
-  // Highlight the active nav link (only meaningful on app routes).
   setActiveNav(routeKey);
 
+  // ── Landing page ──────────────────────────────────────────────
   if (isLanding) {
-    // Landing page renders into its own full-page container, not #app.
-    // First ensure the landing root is visible.
     const landingRoot = document.getElementById('landing-root');
     if (landingRoot) {
       landingRoot.hidden = false;
@@ -95,18 +84,20 @@ async function navigate() {
     return;
   }
 
-  // Leaving the landing page — hide it.
+  // ── Leaving landing — hide it ─────────────────────────────────
   const landingRoot = document.getElementById('landing-root');
   if (landingRoot && !landingRoot.hidden) {
     const landingMod = await import('./pages/landing.js').catch(() => null);
     landingMod?.hide?.();
   }
 
-  // ---- App shell routes ----
+  // ── App shell routes ──────────────────────────────────────────
   const app = document.getElementById('app');
   if (!app) return;
 
-  app.innerHTML = '<div class="page-loading" aria-live="polite" aria-label="Loading…"><div class="spinner"></div></div>';
+  app.innerHTML = `<div class="page-loading" aria-live="polite" aria-label="Loading…">
+    <div class="spinner"></div>
+  </div>`;
 
   if (!matched) {
     app.innerHTML = `<div class="content-card">
@@ -133,6 +124,7 @@ async function navigate() {
 
 // ----------------------------------------------------------------
 // Active nav link highlighting
+// Marks the correct link in BOTH the desktop list and mobile menu.
 // ----------------------------------------------------------------
 
 function setActiveNav(route) {
@@ -145,47 +137,63 @@ function setActiveNav(route) {
 }
 
 // ----------------------------------------------------------------
-// Mobile sidebar toggle
+// Top navigation — mobile hamburger menu toggle
+// Replaces the old initSidebar() function.
 // ----------------------------------------------------------------
 
-function initSidebar() {
-  const sidebar  = document.getElementById('sidebar');
-  const overlay  = document.getElementById('sidebar-overlay');
-  const menuBtn  = document.getElementById('menu-btn');
-  const closeBtn = document.getElementById('sidebar-close');
+function initTopNav() {
+  const menuBtn    = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
 
-  if (!sidebar || !overlay || !menuBtn || !closeBtn) return;
+  if (!menuBtn || !mobileMenu) return;
 
-  function openSidebar() {
-    sidebar.classList.add('is-open');
-    overlay.classList.add('is-visible');
-    overlay.removeAttribute('aria-hidden');
+  function openMenu() {
+    mobileMenu.hidden = false;
     menuBtn.setAttribute('aria-expanded', 'true');
-    closeBtn.setAttribute('aria-expanded', 'true');
-    closeBtn.focus();
+    // Focus first link for keyboard accessibility
+    const firstLink = mobileMenu.querySelector('.nav-link');
+    firstLink?.focus();
   }
 
-  function closeSidebar() {
-    sidebar.classList.remove('is-open');
-    overlay.classList.remove('is-visible');
-    overlay.setAttribute('aria-hidden', 'true');
+  function closeMenu() {
+    mobileMenu.hidden = true;
     menuBtn.setAttribute('aria-expanded', 'false');
-    closeBtn.setAttribute('aria-expanded', 'false');
     menuBtn.focus();
   }
 
-  menuBtn.addEventListener('click', openSidebar);
-  closeBtn.addEventListener('click', closeSidebar);
-  overlay.addEventListener('click', closeSidebar);
+  function toggleMenu() {
+    if (mobileMenu.hidden) {
+      openMenu();
+    } else {
+      closeMenu();
+    }
+  }
 
-  sidebar.querySelectorAll('.nav-link').forEach((link) => {
-    link.addEventListener('click', () => {
-      if (window.innerWidth < 1024) closeSidebar();
-    });
+  // Toggle on hamburger click
+  menuBtn.addEventListener('click', toggleMenu);
+
+  // Close when any nav link is clicked
+  mobileMenu.querySelectorAll('.nav-link').forEach((link) => {
+    link.addEventListener('click', closeMenu);
   });
 
+  // Close on Escape key
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) closeSidebar();
+    if (e.key === 'Escape' && !mobileMenu.hidden) closeMenu();
+  });
+
+  // Close when clicking outside the topnav
+  document.addEventListener('click', (e) => {
+    const topnav = document.getElementById('topnav');
+    if (topnav && !topnav.contains(e.target) && !mobileMenu.hidden) {
+      closeMenu();
+    }
+  });
+
+  // Close if viewport expands past mobile breakpoint
+  const mq = window.matchMedia('(min-width: 768px)');
+  mq.addEventListener('change', (e) => {
+    if (e.matches && !mobileMenu.hidden) closeMenu();
   });
 }
 
@@ -194,7 +202,7 @@ function initSidebar() {
 // ----------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
-  initSidebar();
+  initTopNav();
   navigate();
 });
 

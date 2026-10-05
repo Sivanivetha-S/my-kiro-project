@@ -1,41 +1,39 @@
 /* ================================================================
    StudentHub — responsive.css
-   Media queries for mobile, tablet, and desktop layouts.
-   design.md § 6.5
+   Breakpoint overrides for the top-navigation layout.
+   The sidebar has been replaced with .topnav — no sidebar rules here.
    ================================================================ */
 
 /* ----------------------------------------------------------------
-   Mobile-first base adjustments (< 640px)
+   Mobile-first base (all screens, overridden upward)
    ---------------------------------------------------------------- */
 
-/* Stack the form grid to single column on small screens */
-.form-grid { grid-template-columns: 1fr; }
-.form-group--full { grid-column: 1; }
+/* Single-column form grid on small screens */
+.form-grid         { grid-template-columns: 1fr; }
+.form-group--full  { grid-column: 1; }
 
-/* Dashboard tables stack vertically */
-.dashboard-tables { grid-template-columns: 1fr; }
+/* Dashboard table cards stack vertically on mobile */
+.dashboard-tables  { grid-template-columns: 1fr; }
 
-/* Profile grid stacks vertically */
-.profile-grid { grid-template-columns: 1fr; }
+/* Profile detail grid stacks on mobile */
+.profile-grid      { grid-template-columns: 1fr; }
 
-/* Stat cards wrap and shrink */
-.stat-grid { grid-template-columns: 1fr 1fr; }
+/* Stat cards: 2-up on mobile */
+.stat-grid         { grid-template-columns: 1fr 1fr; }
 
-/* Filter bar: column layout */
-.filter-bar { flex-direction: column; align-items: stretch; }
-.filter-row { flex-direction: column; }
+/* Filter bar stacks on mobile */
+.filter-bar        { flex-direction: column; align-items: stretch; }
+.filter-row        { flex-direction: column; }
 .filter-row .input { min-width: unset; width: 100%; }
 
-/* Ensure no horizontal overflow at 375px */
-body { min-width: 320px; }
-.content { overflow-x: hidden; }
+/* Tables scroll inside their container, never the page */
 .table-wrap { overflow-x: auto; }
 
-/* Modal fits viewport on mobile */
-.modal { max-height: 95vh; }
+/* Modal — sheet from bottom on mobile */
+.modal         { max-height: 95vh; }
 .modal-overlay { padding: var(--space-2); align-items: flex-end; }
 
-/* Toasts full width on mobile */
+/* Toasts full-width on mobile */
 .toast-container {
   left: var(--space-4);
   right: var(--space-4);
@@ -44,15 +42,15 @@ body { min-width: 320px; }
   width: auto;
 }
 
-/* Assign form in student detail wraps */
+/* Assign-course form in student detail wraps */
 .assign-form { flex-wrap: wrap; }
 
 /* ----------------------------------------------------------------
    Tablet: 640px+
    ---------------------------------------------------------------- */
 @media (min-width: 640px) {
-  /* Restore two-column forms on tablet+ */
-  .form-grid { grid-template-columns: 1fr 1fr; }
+  /* Two-column forms */
+  .form-grid        { grid-template-columns: 1fr 1fr; }
   .form-group--full { grid-column: 1 / -1; }
 
   /* Side-by-side filter row */
@@ -60,10 +58,13 @@ body { min-width: 320px; }
   .filter-row { flex-direction: row; }
   .filter-row .input { min-width: 160px; width: auto; }
 
+  /* Stat cards auto-fit */
   .stat-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 
+  /* Modal centred on tablet+ */
   .modal-overlay { padding: var(--space-4); align-items: center; }
 
+  /* Toast positioned bottom-right */
   .toast-container {
     left: auto;
     right: var(--space-6);
@@ -77,29 +78,17 @@ body { min-width: 320px; }
    Desktop: 1024px+
    ---------------------------------------------------------------- */
 @media (min-width: 1024px) {
-  /* Two-column dashboard tables */
+  /* Two-column dashboard table section */
   .dashboard-tables { grid-template-columns: 1fr 1fr; }
 
-  /* Profile grid: info card sidebar + courses wide */
+  /* Profile grid: narrow info card left, wide courses right */
   .profile-grid { grid-template-columns: 320px 1fr; }
-
-  /*
-   * Content centering fix:
-   * DO NOT use margin: 0 auto on .content — it fights the flex layout
-   * and creates a gap between the sidebar edge and the content.
-   * Horizontal centering is achieved purely through padding.
-   * max-width is kept so very wide monitors don't stretch text lines.
-   */
-  .content {
-    max-width: 1200px;
-    /* margin: 0 auto  ← removed: was the cause of the sidebar gap */
-  }
 }
 
 /* ----------------------------------------------------------------
-   Print (basic)
+   Print
    ---------------------------------------------------------------- */
 @media print {
-  .sidebar, .topbar, .btn, .toast-container { display: none !important; }
-  .content { padding: 0; }
+  .topnav, .btn, .toast-container { display: none !important; }
+  .content { padding: 0; max-width: 100%; }
 }
