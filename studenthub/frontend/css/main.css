@@ -209,9 +209,11 @@ img    { max-width: 100%; display: block; }
   font-size: var(--font-size-sm);
   font-weight: 500;
   border-left: 3px solid transparent;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.15s ease;
   line-height: 1.5;
   min-height: 44px;   /* touch target */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-right: var(--space-3);
 }
 
 .nav-link:hover,
@@ -219,15 +221,16 @@ img    { max-width: 100%; display: block; }
   background: var(--sidebar-hover);
   color: #ffffff;
   text-decoration: none;
-  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline: 2px solid rgba(255, 255, 255, 0.20);
   outline-offset: -2px;
 }
 
 .nav-link.is-active {
-  background: var(--sidebar-active);
+  background: rgba(37, 99, 235, 0.35);
   color: #ffffff;
-  border-left-color: #60A5FA;   /* blue-400 — stands out on blue bg */
+  border-left-color: #60A5FA;
   font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.08);
 }
 
 /* Icon — fixed width keeps all labels left-aligned */
@@ -273,6 +276,7 @@ img    { max-width: 100%; display: block; }
   height: var(--topbar-height);
   background: var(--color-surface);
   border-bottom: 1px solid var(--border-color);
+  border-left: 3px solid var(--color-primary);
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -308,6 +312,12 @@ img    { max-width: 100%; display: block; }
   width: 100%;
   /* Mobile default — tight padding */
   padding: var(--space-6) var(--space-4);
+  /* Page-to-page fade-in */
+  animation: app-page-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes app-page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ----------------------------------------------------------------

@@ -26,13 +26,15 @@
 .btn:focus-visible     { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 .btn--primary          { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
-.btn--primary:hover:not(:disabled) { background: var(--color-primary-dk); border-color: var(--color-primary-dk); }
+.btn--primary:hover:not(:disabled) { background: var(--color-primary-dk); border-color: var(--color-primary-dk); box-shadow: 0 4px 12px rgba(37,99,235,0.35); }
+.btn--primary:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
 .btn--outline          { background: transparent; color: var(--color-primary); border-color: var(--color-primary); }
-.btn--outline:hover:not(:disabled) { background: var(--color-primary-xlt); }
+.btn--outline:hover:not(:disabled) { background: var(--color-primary-xlt); box-shadow: 0 2px 8px rgba(37,99,235,0.15); }
 
 .btn--danger           { background: var(--color-danger); color: #fff; border-color: var(--color-danger); }
-.btn--danger:hover:not(:disabled)  { background: #b91c1c; }
+.btn--danger:hover:not(:disabled)  { background: #b91c1c; box-shadow: 0 4px 12px rgba(220,38,38,0.30); }
+.btn--danger:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
 
 .btn--sm               { padding: var(--space-1) var(--space-3); font-size: var(--font-size-xs); }
 
@@ -58,6 +60,11 @@
   padding: var(--space-6);
   box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-6);
+  transition: box-shadow 0.20s ease, border-color 0.20s ease;
+}
+.content-card:hover {
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.09);
+  border-color: var(--color-primary-lt);
 }
 
 /* ----------------------------------------------------------------
@@ -482,4 +489,18 @@ code {
   color: var(--color-primary-dk);
   padding: 1px 6px;
   border-radius: 4px;
+}
+
+/* ----------------------------------------------------------------
+   Reduced motion — respect user preference
+   ---------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .content-card,
+  .stat-card,
+  .btn,
+  .nav-link,
+  .data-table tbody tr { transition: none !important; }
+
+  .stat-card:hover   { transform: none; }
+  .content-card:hover{ box-shadow: var(--shadow-sm); }
 }
