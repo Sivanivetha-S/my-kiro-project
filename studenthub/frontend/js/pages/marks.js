@@ -201,17 +201,27 @@ function renderMarksTable(marks) {
     return;
   }
   wrap.innerHTML = `
-    <div class="marks-scorecard">
-      ${marks.map(m => `
-        <div class="marks-score-item">
-          <div class="marks-score-item__code">${escHtml(m.course_code)}</div>
-          <div class="marks-score-item__course">${escHtml(m.course_name)}</div>
-          <div class="marks-score-item__row">
-            <div class="marks-score-item__marks">${escHtml(String(m.marks))}<span>/100</span></div>
-            ${gradeBadge(m.grade)}
-          </div>
-        </div>
-      `).join('')}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">Code</th>
+            <th scope="col">Course</th>
+            <th scope="col">Marks</th>
+            <th scope="col">Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${marks.map(m => `
+            <tr>
+              <td><code>${escHtml(m.course_code)}</code></td>
+              <td>${escHtml(m.course_name)}</td>
+              <td><strong>${escHtml(String(m.marks))}</strong></td>
+              <td>${gradeBadge(m.grade)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
     </div>
   `;
 }

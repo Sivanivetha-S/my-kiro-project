@@ -63,19 +63,13 @@ function renderProfile(container, profile, allCourses) {
           <span>🪪 <code style="color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.12);padding:1px 6px;border-radius:4px">${escHtml(profile.student_id)}</code></span>
         </div>
       </div>
-      <div class="profile-hero__stats">
-        <div class="profile-hero__stat">
-          <div class="profile-hero__stat-val">${avgMarks}</div>
-          <div class="profile-hero__stat-lbl">Avg Marks</div>
-        </div>
-        <div class="profile-hero__stat">
-          <div class="profile-hero__stat-val" style="${attLow ? 'color:#fca5a5' : ''}">${overallAtt}</div>
-          <div class="profile-hero__stat-lbl">Attendance</div>
-        </div>
-        <div class="profile-hero__stat">
-          <div class="profile-hero__stat-val">${(profile.courses ?? []).length}</div>
-          <div class="profile-hero__stat-lbl">Courses</div>
-        </div>
+      <div class="profile-hero__stat">
+        <div class="profile-hero__stat-val">${avgMarks}</div>
+        <div class="profile-hero__stat-lbl">Avg Marks</div>
+      </div>
+      <div class="profile-hero__stat">
+        <div class="profile-hero__stat-val" style="${attLow ? 'color:#fca5a5' : ''}">${overallAtt}</div>
+        <div class="profile-hero__stat-lbl">Attendance</div>
       </div>
     </div>
 
