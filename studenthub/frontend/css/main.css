@@ -1,36 +1,51 @@
 /* ================================================================
    StudentHub — main.css
    Global reset, CSS design tokens, layout, typography, navigation.
-   design.md § 6.4 defines the color palette and token names.
    ================================================================ */
 
 /* ----------------------------------------------------------------
-   1. CSS Design Tokens  (design.md § 6.4)
+   1. CSS Design Tokens
    ---------------------------------------------------------------- */
 :root {
-  /* Colors */
-  --color-primary:      #2563EB;  /* blue-600 */
-  --color-primary-dk:   #1D4ED8;  /* blue-700 */
-  --color-success:      #16A34A;  /* green-600 */
-  --color-warning:      #D97706;  /* amber-600 */
-  --color-danger:       #DC2626;  /* red-600 */
-  --color-neutral-50:   #F9FAFB;
-  --color-neutral-100:  #F3F4F6;
-  --color-neutral-200:  #E5E7EB;
-  --color-neutral-700:  #374151;
-  --color-neutral-900:  #111827;
+  /* ── Blue design system ── */
+  --color-primary:      #2563EB;   /* blue-600  — primary action / accent */
+  --color-primary-dk:   #1D4ED8;   /* blue-700  — hover / pressed */
+  --color-primary-lt:   #DBEAFE;   /* blue-100  — light backgrounds */
+  --color-primary-xlt:  #EFF6FF;   /* blue-50   — very light tint */
+  --color-primary-mid:  #3B82F6;   /* blue-500  — secondary accent */
+
+  /* ── Semantic colors — kept for badges/alerts only ── */
+  --color-success:      #16A34A;
+  --color-warning:      #D97706;
+  --color-danger:       #DC2626;
+
+  /* ── Neutrals (cool-tinted to match blue theme) ── */
+  --color-neutral-50:   #F8FAFC;   /* page background */
+  --color-neutral-100:  #F1F5F9;
+  --color-neutral-200:  #E2E8F0;   /* borders */
+  --color-neutral-700:  #64748B;   /* secondary text */
+  --color-neutral-900:  #0F172A;   /* primary text */
   --color-surface:      #FFFFFF;
 
-  /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-size-xs:   0.75rem;   /* 12px */
-  --font-size-sm:   0.875rem;  /* 14px */
-  --font-size-base: 1rem;      /* 16px */
-  --font-size-lg:   1.125rem;  /* 18px */
-  --font-size-xl:   1.25rem;   /* 20px */
-  --font-size-2xl:  1.5rem;    /* 24px */
+  /* ── Sidebar — deep blue ── */
+  --sidebar-bg:         #1E3A8A;   /* blue-900 */
+  --sidebar-bg-dk:      #172554;   /* blue-950 — header area */
+  --sidebar-hover:      rgba(255, 255, 255, 0.08);
+  --sidebar-active:     rgba(37, 99, 235, 0.30);
+  --sidebar-border:     rgba(255, 255, 255, 0.10);
+  --sidebar-text:       rgba(255, 255, 255, 0.80);
+  --sidebar-text-muted: rgba(255, 255, 255, 0.50);
 
-  /* Spacing */
+  /* ── Typography ── */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-xs:   0.75rem;
+  --font-size-sm:   0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg:   1.125rem;
+  --font-size-xl:   1.25rem;
+  --font-size-2xl:  1.5rem;
+
+  /* ── Spacing ── */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -39,19 +54,21 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
 
-  /* Borders */
+  /* ── Borders ── */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --border-color: var(--color-neutral-200);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 8px rgba(15, 23, 42, 0.08);
 
-  /* Layout */
+  /* ── Layout ── */
   --sidebar-width: 240px;
   --topbar-height: 56px;
+  --content-max-width: 1200px;
+  --content-padding-x: 2rem;      /* consistent left/right on desktop */
 }
 
 /* ----------------------------------------------------------------
@@ -81,24 +98,11 @@ a {
   color: var(--color-primary);
   text-decoration: none;
 }
+a:hover { text-decoration: underline; }
 
-a:hover {
-  text-decoration: underline;
-}
-
-ul, ol {
-  list-style: none;
-}
-
-button {
-  font-family: var(--font-sans);
-  cursor: pointer;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
+ul, ol { list-style: none; }
+button { font-family: var(--font-sans); cursor: pointer; }
+img    { max-width: 100%; display: block; }
 
 /* ----------------------------------------------------------------
    3. Accessibility — Skip link
@@ -109,98 +113,157 @@ img {
   left: var(--space-4);
   padding: var(--space-2) var(--space-4);
   background: var(--color-primary);
-  color: var(--color-surface);
+  color: #fff;
   border-radius: var(--radius-md);
   font-weight: 600;
   z-index: 1000;
   transition: top 0.2s;
 }
-
-.skip-link:focus {
-  top: var(--space-4);
-}
+.skip-link:focus { top: var(--space-4); }
 
 /* ----------------------------------------------------------------
    4. Layout — Sidebar + Main
-   (Mobile-first: sidebar hidden by default below 1024px)
    ---------------------------------------------------------------- */
 .layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* Sidebar */
+/* ──────────────────────────────────────────────
+   SIDEBAR — deep professional blue
+   ────────────────────────────────────────────── */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
   width: var(--sidebar-width);
-  background: var(--color-neutral-900);
-  color: var(--color-neutral-50);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
   display: flex;
   flex-direction: column;
   z-index: 200;
   transform: translateX(-100%);
   transition: transform 0.25s ease;
+  /* thin right border gives a clean edge against the page */
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .sidebar.is-open {
   transform: translateX(0);
 }
 
+/* Header area — slightly darker blue for visual hierarchy */
 .sidebar__header {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-5) var(--space-4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--space-5) var(--space-5);   /* uniform 1.25rem on all sides */
+  background: var(--sidebar-bg-dk);
+  border-bottom: 1px solid var(--sidebar-border);
+  min-height: 64px;
 }
 
 .sidebar__logo {
-  font-size: var(--font-size-xl);
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
 }
 
 .sidebar__brand {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: 700;
+  color: #ffffff;
   flex: 1;
+  letter-spacing: 0.01em;
 }
 
 .sidebar__close {
   background: none;
   border: none;
-  color: var(--color-neutral-50);
-  font-size: var(--font-size-base);
-  padding: var(--space-1);
+  color: var(--sidebar-text);
+  font-size: var(--font-size-sm);
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   line-height: 1;
+  transition: background 0.15s;
+}
+.sidebar__close:hover { background: var(--sidebar-hover); }
+
+/* ──────────────────────────────────────────────
+   Navigation
+   ────────────────────────────────────────────── */
+.nav-list {
+  padding: var(--space-3) 0 var(--space-4);
 }
 
-.sidebar__close:hover {
-  background: rgba(255, 255, 255, 0.1);
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* Use the same left/right padding as the header for perfect alignment */
+  padding: 0.6rem var(--space-5);
+  color: var(--sidebar-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  line-height: 1.5;
+  min-height: 44px;   /* touch target */
 }
 
-/* Mobile overlay */
+.nav-link:hover,
+.nav-link:focus {
+  background: var(--sidebar-hover);
+  color: #ffffff;
+  text-decoration: none;
+  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline-offset: -2px;
+}
+
+.nav-link.is-active {
+  background: var(--sidebar-active);
+  color: #ffffff;
+  border-left-color: #60A5FA;   /* blue-400 — stands out on blue bg */
+  font-weight: 600;
+}
+
+/* Icon — fixed width keeps all labels left-aligned */
+.nav-link__icon {
+  font-size: 1rem;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+.nav-link.is-active .nav-link__icon,
+.nav-link:hover     .nav-link__icon { opacity: 1; }
+
+.nav-link__label { flex: 1; }
+
+/* ──────────────────────────────────────────────
+   Mobile overlay
+   ────────────────────────────────────────────── */
 .sidebar-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 190;
 }
+.sidebar-overlay.is-visible { display: block; }
 
-.sidebar-overlay.is-visible {
-  display: block;
-}
-
-/* Main wrapper */
+/* ──────────────────────────────────────────────
+   Main wrapper
+   ────────────────────────────────────────────── */
 .main-wrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  /* no margin-left on mobile — sidebar overlaps */
+  min-width: 0;   /* prevent flex blowout */
 }
 
 /* Top bar (mobile only) */
@@ -227,10 +290,7 @@ img {
   border-radius: var(--radius-sm);
   line-height: 1;
 }
-
-.topbar__menu-btn:hover {
-  background: var(--color-neutral-100);
-}
+.topbar__menu-btn:hover { background: var(--color-neutral-100); }
 
 .topbar__title {
   font-size: var(--font-size-lg);
@@ -238,57 +298,20 @@ img {
   color: var(--color-neutral-900);
 }
 
-/* Page content */
+/* ──────────────────────────────────────────────
+   Page content area
+   Consistent padding + max-width centering solves the
+   left-alignment problem between heading / cards / tables.
+   ────────────────────────────────────────────── */
 .content {
   flex: 1;
-  padding: var(--space-6) var(--space-4);
-  max-width: 1200px;
   width: 100%;
+  /* Mobile default — tight padding */
+  padding: var(--space-6) var(--space-4);
 }
 
 /* ----------------------------------------------------------------
-   5. Navigation
-   ---------------------------------------------------------------- */
-.nav-list {
-  padding: var(--space-4) 0;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-neutral-200);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  border-left: 3px solid transparent;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.nav-link:hover,
-.nav-link:focus {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--color-surface);
-  text-decoration: none;
-  outline: 2px solid rgba(255, 255, 255, 0.3);
-  outline-offset: -2px;
-}
-
-.nav-link.is-active {
-  background: rgba(37, 99, 235, 0.25);
-  color: var(--color-surface);
-  border-left-color: var(--color-primary);
-}
-
-.nav-link__icon {
-  font-size: var(--font-size-base);
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-/* ----------------------------------------------------------------
-   6. Focus styles (accessibility)
+   5. Focus styles
    ---------------------------------------------------------------- */
 :focus-visible {
   outline: 2px solid var(--color-primary);
@@ -296,7 +319,7 @@ img {
 }
 
 /* ----------------------------------------------------------------
-   7. Typography helpers
+   6. Typography helpers
    ---------------------------------------------------------------- */
 .page-title {
   font-size: var(--font-size-2xl);
@@ -313,17 +336,14 @@ img {
 }
 
 /* ----------------------------------------------------------------
-   8. Responsive Breakpoints  (design.md § 6.5)
+   7. Responsive Breakpoints
    ---------------------------------------------------------------- */
-
-/* Tablet: 640px+ — sidebar collapses to icon-only (future T-18 enhancement) */
 @media (min-width: 640px) {
   .content {
     padding: var(--space-6) var(--space-8);
   }
 }
 
-/* Desktop: 1024px+ — sidebar always visible, no topbar needed */
 @media (min-width: 1024px) {
   .sidebar {
     position: sticky;
@@ -331,31 +351,18 @@ img {
     flex-shrink: 0;
   }
 
-  .sidebar__close {
-    display: none;
-  }
+  .sidebar__close     { display: none; }
+  .sidebar-overlay    { display: none !important; }
+  .topbar             { display: none; }
 
-  .sidebar-overlay {
-    display: none !important;
-  }
-
-  .topbar {
-    display: none;
-  }
-
-  .main-wrapper {
-    /* leave space for the sticky sidebar */
-  }
-
+  /* Consistent padding on desktop — same as --content-padding-x */
   .content {
-    padding: var(--space-8);
+    padding: var(--space-8) var(--content-padding-x);
   }
 }
 
 /* ----------------------------------------------------------------
-   9. Shell visibility toggle
-   When the landing page is active the entire app shell is hidden so
-   the landing page can occupy the full viewport without interference.
+   8. Shell visibility toggle (landing page)
    ---------------------------------------------------------------- */
 .shell--hidden {
   display: none !important;

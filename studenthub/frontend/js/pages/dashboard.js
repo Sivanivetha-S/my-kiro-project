@@ -42,17 +42,19 @@ export async function render(container) {
 function renderStats(data) {
   const grid = document.getElementById('stat-grid');
   if (!grid) return;
+  // All four cards use the unified blue design language.
+  // --stat-accent drives only the left border hue; layout is identical.
   grid.innerHTML = `
-    ${statCard('👥', 'Total Students',    data.total_students,                           'var(--color-primary)')}
-    ${statCard('📚', 'Total Courses',     data.total_courses,                            'var(--color-success)')}
-    ${statCard('📅', 'Avg Attendance',    (data.average_attendance ?? 0).toFixed(2) + '%', 'var(--color-warning)')}
-    ${statCard('⚠️', 'Low Attendance',    (data.low_attendance_students ?? []).length,    'var(--color-danger)')}
+    ${statCard('👥', 'Total Students',  data.total_students,                             '#2563EB')}
+    ${statCard('📚', 'Total Courses',   data.total_courses,                              '#3B82F6')}
+    ${statCard('📅', 'Avg Attendance',  (data.average_attendance ?? 0).toFixed(2) + '%', '#1D4ED8')}
+    ${statCard('⚠️', 'Low Attendance',  (data.low_attendance_students ?? []).length,     '#60A5FA')}
   `;
 }
 
-function statCard(icon, label, value, color) {
+function statCard(icon, label, value, accent) {
   return `
-    <div class="stat-card" style="--stat-color: ${color}">
+    <div class="stat-card" style="--stat-accent: ${accent}">
       <div class="stat-card__icon" aria-hidden="true">${icon}</div>
       <div class="stat-card__body">
         <div class="stat-card__value">${escHtml(String(value))}</div>
