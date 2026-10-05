@@ -123,15 +123,15 @@ img { max-width: 100%; display: block; }
 
 /* ================================================================
    TOP NAVIGATION BAR
-   White bar with blue accents, full-width, sticky at top.
+   Dark blue gradient matching the landing page hero/CTA band.
    ================================================================ */
 .topnav {
   position: sticky;
   top: 0;
   z-index: 300;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-neutral-200);
-  box-shadow: 0 1px 8px rgba(15,23,42,0.06);
+  background: linear-gradient(135deg, #020617 0%, #0f172a 35%, #1e3a8a 75%, #1d4ed8 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 12px rgba(2, 6, 23, 0.40);
 }
 
 /* ── Inner container — constrains max-width and aligns items ─── */
@@ -164,7 +164,7 @@ img { max-width: 100%; display: block; }
 .topnav__brand-name {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--color-primary);
+  color: #ffffff;
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
@@ -191,7 +191,7 @@ img { max-width: 100%; display: block; }
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--color-neutral-700);
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
   white-space: nowrap;
   transition: background 0.18s ease, color 0.18s ease;
@@ -201,17 +201,17 @@ img { max-width: 100%; display: block; }
 
 .nav-link:hover,
 .nav-link:focus {
-  background: var(--color-primary-xlt);
-  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
   text-decoration: none;
 }
 
-/* Active state — blue underline + tinted background */
+/* Active state — white underline + light tinted background */
 .nav-link.is-active {
-  background: var(--color-primary-xlt);
-  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
   font-weight: 600;
-  border-bottom-color: var(--color-primary);
+  border-bottom-color: #60a5fa;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
@@ -240,16 +240,16 @@ img { max-width: 100%; display: block; }
   margin-left: auto;
   flex-shrink: 0;
 }
-.topnav__hamburger:hover { background: var(--color-primary-xlt); }
+.topnav__hamburger:hover { background: rgba(255, 255, 255, 0.10); }
 .topnav__hamburger-bar {
   display: block;
   width: 22px;
   height: 2px;
-  background: var(--color-neutral-700);
+  background: rgba(255, 255, 255, 0.80);
   border-radius: 2px;
   transition: background 0.15s;
 }
-.topnav__hamburger:hover .topnav__hamburger-bar { background: var(--color-primary); }
+.topnav__hamburger:hover .topnav__hamburger-bar { background: #ffffff; }
 .topnav__hamburger[aria-expanded="true"] .topnav__hamburger-bar:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
   transition: transform 0.2s ease;
@@ -264,10 +264,10 @@ img { max-width: 100%; display: block; }
 
 /* ── Mobile dropdown menu ────────────────────────────────────── */
 .topnav__mobile-menu {
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-neutral-200);
+  background: #0f172a;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: var(--space-2) var(--space-4) var(--space-4);
-  box-shadow: 0 8px 16px rgba(15,23,42,0.08);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.40);
 }
 .topnav__mobile-menu[hidden] { display: none; }
 
@@ -285,8 +285,8 @@ img { max-width: 100%; display: block; }
   font-size: var(--font-size-base);
 }
 .topnav__mobile-list .nav-link.is-active {
-  background: var(--color-primary-xlt);
-  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
   border-bottom: none;
   border-radius: var(--radius-md);
 }
