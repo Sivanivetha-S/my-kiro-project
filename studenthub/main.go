@@ -8,6 +8,7 @@ import (
 
 	"studenthub/config"
 	"studenthub/db"
+	"studenthub/handlers"
 	"studenthub/middleware"
 )
 
@@ -58,6 +59,9 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("/api/", middleware.CORS(apiMux))
+
+	// Register API routes — each handler group wires its own routes onto apiMux.
+	handlers.RegisterStudentRoutes(apiMux, database)
 
 	// Static asset routes — strip the leading path prefix so the file server
 	// looks inside the correct subdirectory of frontend/.
