@@ -7,16 +7,28 @@
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="/css/landing.css" />
 </head>
 <body>
-  <!-- Skip navigation link for keyboard/screen-reader users (coding-standards.md) -->
+  <!-- Skip navigation link for keyboard/screen-reader users -->
   <a class="skip-link" href="#app">Skip to main content</a>
 
-  <div class="layout">
+  <!-- ============================================================
+       Landing page — full-viewport, rendered by pages/landing.js.
+       Shown when hash is empty or #landing.
+       Hidden (display:none) on every app route.
+  ============================================================ -->
+  <div id="landing-root" hidden aria-hidden="true"></div>
+
+  <!-- ============================================================
+       App shell — sidebar + main content area.
+       Hidden while on the landing page via .shell--hidden.
+  ============================================================ -->
+  <div class="layout" id="layout">
     <!-- Sidebar navigation -->
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="sidebar__header">
-        <span class="sidebar__logo">🎓</span>
+        <span class="sidebar__logo" aria-hidden="true">🎓</span>
         <span class="sidebar__brand">StudentHub</span>
         <button
           class="sidebar__close"

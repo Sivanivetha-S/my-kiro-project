@@ -351,3 +351,12 @@ img {
     padding: var(--space-8);
   }
 }
+
+/* ----------------------------------------------------------------
+   9. Shell visibility toggle
+   When the landing page is active the entire app shell is hidden so
+   the landing page can occupy the full viewport without interference.
+   ---------------------------------------------------------------- */
+.shell--hidden {
+  display: none !important;
+}
