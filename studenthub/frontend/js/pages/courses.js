@@ -40,38 +40,36 @@ export async function render(container) {
   await loadCourses();
 }
 
+// Colour palette for course cards — cycles through blue shades
+const COURSE_COLORS = ['#2563eb','#7c3aed','#0891b2','#059669','#d97706','#dc2626'];
+
 function renderTable(wrap, courses, refresh) {
   if (!courses.length) {
-    showEmpty(wrap, 'No courses yet. Add one to get started.');
+    wrap.innerHTML = `<div class="empty-state"><p>No courses yet. Add one to get started.</p></div>`;
     return;
   }
   wrap.innerHTML = `
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th scope="col">Code</th>
-            <th scope="col">Course Name</th>
-            <th scope="col">Department</th>
-            <th scope="col">Credits</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${courses.map(c => `
-            <tr>
-              <td><code>${escHtml(c.course_code)}</code></td>
-              <td>${escHtml(c.course_name)}</td>
-              <td>${escHtml(c.department)}</td>
-              <td>${escHtml(String(c.credits))}</td>
-              <td class="actions">
-                <button class="btn btn--sm btn--outline edit-btn" data-id="${c.id}" aria-label="Edit ${escHtml(c.course_code)}">Edit</button>
-                <button class="btn btn--sm btn--danger delete-btn" data-id="${c.id}" data-name="${escHtml(c.course_name)}" aria-label="Delete ${escHtml(c.course_code)}">Delete</button>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+    <div class="course-grid">
+      ${courses.map((c, i) => {
+        const color = COURSE_COLORS[i % COURSE_COLORS.length];
+        return `
+          <div class="course-card" style="--course-color:${color}">
+            <div class="course-card__header">
+              <span class="course-card__code">${escHtml(c.course_code)}</span>
+              <span class="course-card__credits">${escHtml(String(c.credits))} cr</span>
+            </div>
+            <div class="course-card__name">${escHtml(c.course_name)}</div>
+            <div class="course-card__dept">${escHtml(c.department)}</div>
+            <div class="course-card__actions">
+              <button class="btn btn--sm btn--outline edit-btn" data-id="${c.id}"
+                aria-label="Edit ${escHtml(c.course_code)}" style="flex:1">Edit</button>
+              <button class="btn btn--sm btn--danger delete-btn" data-id="${c.id}"
+                data-name="${escHtml(c.course_name)}"
+                aria-label="Delete ${escHtml(c.course_code)}" style="flex:1">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
     </div>
   `;
 
