@@ -1,6 +1,5 @@
 /**
  * attendance.js — Attendance entry and view page.
- * Unchanged API/logic — UI improvements only.
  */
 
 import { studentsApi, attendanceApi } from '../api.js';
@@ -45,7 +44,6 @@ export async function render(container) {
             <span id="err-attended" data-error="attended" class="field-error" role="alert" hidden></span>
           </div>
 
-          <!-- Animated live preview — replaces plain attendance-preview div -->
           <div class="form-group form-group--full">
             <div class="att-live-preview" id="att-preview" aria-live="polite" hidden>
               <div class="att-live-preview__label">Live Attendance</div>
@@ -77,10 +75,16 @@ export async function render(container) {
   const submitBtn  = document.getElementById('att-submit-btn');
   const form       = document.getElementById('att-form');
 
-  let existingAttId    = null;
+  // existingAttId tracks whether this is a POST (null) or PUT (id).
+  let existingAttId     = null;
   let currentAttRecords = [];
 
-  // Load all students.
+  // ── Helper: enable/disable the Save button based on current select values ──
+  function refreshSubmitState() {
+    submitBtn.disabled = !studentSel.value || !courseSel.value;
+  }
+
+  // ── Load all students ────────────────────────────────────────────────────
   try {
     const students = await studentsApi.list();
     studentSel.innerHTML = buildOptions(
@@ -91,49 +95,69 @@ export async function render(container) {
     studentSel.innerHTML = '<option value="">Failed to load students</option>';
   }
 
-  // On student change.
+  // ── On student change ────────────────────────────────────────────────────
   studentSel.addEventListener('change', async () => {
     const sid = studentSel.value;
-    courseSel.innerHTML = '<option value="">Loading…</option>';
-    courseSel.disabled  = true;
-    submitBtn.disabled  = true;
-    existingAttId       = null;
-    totalInput.value    = '';
-    attInput.value      = '';
-    preview.hidden      = true;
+
+    // Reset course dropdown and related state.
+    courseSel.innerHTML    = '<option value="">Loading…</option>';
+    courseSel.disabled     = true;
+    existingAttId          = null;
+    totalInput.value       = '';
+    attInput.value         = '';
+    preview.hidden         = true;
+    refreshSubmitState();
     document.getElementById('att-table-card').hidden = true;
 
-    if (!sid) { courseSel.innerHTML = '<option value="">Select student first…</option>'; return; }
+    if (!sid) {
+      courseSel.innerHTML = '<option value="">Select student first…</option>';
+      return;
+    }
 
     try {
       const [courses, attResp] = await Promise.all([
         studentsApi.courses(sid),
         studentsApi.attendance(sid),
       ]);
+
       currentAttRecords = attResp.attendance ?? [];
       document.getElementById('att-student-name').textContent = attResp.student_name ?? '';
+
+      if (!courses.length) {
+        courseSel.innerHTML = '<option value="">No enrolled courses</option>';
+        courseSel.disabled  = true;
+        refreshSubmitState();
+        renderAttTable(currentAttRecords);
+        return;
+      }
 
       courseSel.innerHTML = buildOptions(
         courses.map(c => ({ value: c.id, label: `${c.course_code} — ${c.course_name}` })),
         '', 'Select course…'
       );
       courseSel.disabled = false;
+
+      // *** KEY FIX: enable Save only after courses are loaded ***
+      refreshSubmitState();
       renderAttTable(currentAttRecords);
-    } catch {
-      courseSel.innerHTML = '<option value="">No enrolled courses</option>';
+    } catch (err) {
+      courseSel.innerHTML = '<option value="">Failed to load courses</option>';
+      refreshSubmitState();
     }
   });
 
-  // On course change: prefill existing.
+  // ── On course change: prefill if existing record found ──────────────────
   courseSel.addEventListener('change', () => {
-    const cid     = parseInt(courseSel.value, 10);
-    existingAttId = null;
+    existingAttId    = null;
     totalInput.value = '';
     attInput.value   = '';
     preview.hidden   = true;
-    submitBtn.disabled = !cid;
 
+    refreshSubmitState();   // re-check button state
+
+    const cid = parseInt(courseSel.value, 10);
     if (!cid) return;
+
     const existing = currentAttRecords.find(a => a.course_id === cid);
     if (existing) {
       totalInput.value = existing.total_classes;
@@ -143,7 +167,7 @@ export async function render(container) {
     }
   });
 
-  // Live animated preview.
+  // ── Live animated percentage preview ────────────────────────────────────
   function updatePreview() {
     const pct = liveAttendancePct(totalInput.value, attInput.value);
     if (pct === null) { preview.hidden = true; return; }
@@ -160,35 +184,72 @@ export async function render(container) {
   totalInput.addEventListener('input', updatePreview);
   attInput.addEventListener('input', updatePreview);
 
+  // ── Form submit ──────────────────────────────────────────────────────────
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors(form);
-    const errs = validateAttendanceForm({ total_classes: totalInput.value, attended: attInput.value });
-    if (errs.length) { displayErrors(form, errs); return; }
 
+    // Read values fresh at submit time.
     const sid   = parseInt(studentSel.value, 10);
     const cid   = parseInt(courseSel.value, 10);
     const total = parseInt(totalInput.value, 10);
     const att   = parseInt(attInput.value, 10);
 
-    submitBtn.disabled   = true;
+    // Guard: both selects must have valid values.
+    if (!sid || !cid) {
+      toast.error('Please select both a student and a course.');
+      return;
+    }
+
+    // Client-side validation.
+    const errs = validateAttendanceForm({ total_classes: totalInput.value, attended: attInput.value });
+    if (errs.length) { displayErrors(form, errs); return; }
+
+    submitBtn.disabled    = true;
     submitBtn.textContent = 'Saving…';
+
     try {
       if (existingAttId) {
+        // PUT — update existing record.
         await attendanceApi.update(existingAttId, total, att);
         toast.success('Attendance updated successfully.');
       } else {
+        // POST — create new record.
         await attendanceApi.create({ student_id: sid, course_id: cid, total_classes: total, attended: att });
         toast.success('Attendance recorded successfully.');
       }
+
+      // Refresh the attendance table.
       const attResp = await studentsApi.attendance(sid);
       currentAttRecords = attResp.attendance ?? [];
       renderAttTable(currentAttRecords);
+
+      // Update existingAttId so the next save is a PUT.
       const updated = currentAttRecords.find(a => a.course_id === cid);
       if (updated) existingAttId = updated.attendance_id;
+
     } catch (err) {
-      if (err.fields) displayErrors(form, err.fields);
-      else toast.error(err.error ?? 'Failed to save attendance.');
+      if (err.fields) {
+        displayErrors(form, err.fields);
+      } else if (err.status === 409) {
+        // Duplicate — switch to update mode automatically.
+        toast.info('Record already exists. Fetching existing record…');
+        const attResp = await studentsApi.attendance(sid).catch(() => null);
+        if (attResp) {
+          currentAttRecords = attResp.attendance ?? [];
+          const found = currentAttRecords.find(a => a.course_id === cid);
+          if (found) {
+            existingAttId    = found.attendance_id;
+            totalInput.value = found.total_classes;
+            attInput.value   = found.attended;
+            updatePreview();
+            renderAttTable(currentAttRecords);
+            toast.info('Existing record loaded. Edit the values and save again.');
+          }
+        }
+      } else {
+        toast.error(err.error ?? 'Failed to save attendance. Please try again.');
+      }
     } finally {
       submitBtn.disabled    = false;
       submitBtn.textContent = 'Save Attendance';
@@ -196,15 +257,18 @@ export async function render(container) {
   });
 }
 
+// ── Render attendance table ──────────────────────────────────────────────
 function renderAttTable(records) {
   const card = document.getElementById('att-table-card');
   const wrap = document.getElementById('att-table-wrap');
+  if (!card || !wrap) return;
   card.hidden = false;
 
   if (!records.length) {
     showEmpty(wrap, 'No attendance records for this student yet.');
     return;
   }
+
   wrap.innerHTML = `
     <div class="table-wrap">
       <table class="data-table">
