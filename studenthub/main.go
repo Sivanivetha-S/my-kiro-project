@@ -62,6 +62,11 @@ func main() {
 
 	// Register API routes — each handler group wires its own routes onto apiMux.
 	handlers.RegisterStudentRoutes(apiMux, database)
+	handlers.RegisterCourseRoutes(apiMux, database)
+	handlers.RegisterEnrollmentRoutes(apiMux, database)
+	handlers.RegisterMarksRoutes(apiMux, database)
+	handlers.RegisterAttendanceRoutesWithConfig(apiMux, database, cfg)
+	handlers.RegisterDashboardRoutes(apiMux, database, cfg)
 
 	// Static asset routes — strip the leading path prefix so the file server
 	// looks inside the correct subdirectory of frontend/.

@@ -88,7 +88,8 @@ func getStudent(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		student, err := models.GetStudentByID(db, id)
+		// Return the full student profile (with courses, marks, attendance).
+		profile, err := models.GetStudentProfile(db, id)
 		if err != nil {
 			if errors.Is(err, models.ErrNotFound) {
 				writeError(w, http.StatusNotFound, "Student not found", "NOT_FOUND")
@@ -98,7 +99,7 @@ func getStudent(db *sql.DB) http.HandlerFunc {
 			writeError(w, http.StatusInternalServerError, "An unexpected error occurred", "INTERNAL_ERROR")
 			return
 		}
-		writeJSON(w, http.StatusOK, student)
+		writeJSON(w, http.StatusOK, profile)
 	}
 }
 
