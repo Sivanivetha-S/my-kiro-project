@@ -1,0 +1,99 @@
+/* ================================================================
+   StudentHub — responsive.css
+   Media queries for mobile, tablet, and desktop layouts.
+   design.md § 6.5
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   Mobile-first base adjustments (< 640px)
+   ---------------------------------------------------------------- */
+
+/* Stack the form grid to single column on small screens */
+.form-grid { grid-template-columns: 1fr; }
+.form-group--full { grid-column: 1; }
+
+/* Dashboard tables stack vertically */
+.dashboard-tables { grid-template-columns: 1fr; }
+
+/* Profile grid stacks vertically */
+.profile-grid { grid-template-columns: 1fr; }
+
+/* Stat cards wrap and shrink */
+.stat-grid { grid-template-columns: 1fr 1fr; }
+
+/* Filter bar: column layout */
+.filter-bar { flex-direction: column; align-items: stretch; }
+.filter-row { flex-direction: column; }
+.filter-row .input { min-width: unset; width: 100%; }
+
+/* Ensure no horizontal overflow at 375px */
+body { min-width: 320px; }
+.content { overflow-x: hidden; }
+.table-wrap { overflow-x: auto; }
+
+/* Modal fits viewport on mobile */
+.modal { max-height: 95vh; }
+.modal-overlay { padding: var(--space-2); align-items: flex-end; }
+
+/* Toasts full width on mobile */
+.toast-container {
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-4);
+  max-width: 100%;
+  width: auto;
+}
+
+/* Assign form in student detail wraps */
+.assign-form { flex-wrap: wrap; }
+
+/* ----------------------------------------------------------------
+   Tablet: 640px+
+   ---------------------------------------------------------------- */
+@media (min-width: 640px) {
+  /* Restore two-column forms on tablet+ */
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .form-group--full { grid-column: 1 / -1; }
+
+  /* Side-by-side filter row */
+  .filter-bar { flex-direction: row; align-items: flex-end; }
+  .filter-row { flex-direction: row; }
+  .filter-row .input { min-width: 160px; width: auto; }
+
+  .stat-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+  .modal-overlay { padding: var(--space-4); align-items: center; }
+
+  .toast-container {
+    left: auto;
+    right: var(--space-6);
+    bottom: var(--space-6);
+    max-width: 360px;
+    width: calc(100% - var(--space-8));
+  }
+}
+
+/* ----------------------------------------------------------------
+   Desktop: 1024px+
+   ---------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  /* Two-column dashboard tables */
+  .dashboard-tables { grid-template-columns: 1fr 1fr; }
+
+  /* Profile grid: info card sidebar + courses wide */
+  .profile-grid { grid-template-columns: 320px 1fr; }
+
+  /* Content area max-width centering */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* ----------------------------------------------------------------
+   Print (basic)
+   ---------------------------------------------------------------- */
+@media print {
+  .sidebar, .topbar, .btn, .toast-container { display: none !important; }
+  .content { padding: 0; }
+}

@@ -1,51 +1,88 @@
 /**
- * app.js — StudentHub SPA shell
+ * app.js — StudentHub SPA shell and hash-based router.
  *
- * Responsibilities for T-05 (placeholder):
- *   - Renders "Welcome to StudentHub" into #app on load.
- *   - Wires up the mobile sidebar toggle (hamburger / close / overlay).
- *   - Highlights the active nav link based on the current URL hash.
- *
- * T-18 will replace the render() function with a full hash-based router
- * that loads page modules dynamically.
+ * Routing table (design.md § 6.1):
+ *   #dashboard           → pages/dashboard.js
+ *   #students            → pages/students.js  (list)
+ *   #students/new        → pages/students.js  (add form)
+ *   #students/:id        → pages/student-detail.js
+ *   #students/:id/edit   → pages/students.js  (edit form)
+ *   #courses             → pages/courses.js
+ *   #marks               → pages/marks.js
+ *   #attendance          → pages/attendance.js
  */
+
+// ----------------------------------------------------------------
+// Router
+// ----------------------------------------------------------------
+
+const routes = [
+  { pattern: /^dashboard$/,            page: 'dashboard',       params: () => ({}) },
+  { pattern: /^students\/new$/,         page: 'students',        params: () => ({ mode: 'new' }) },
+  { pattern: /^students\/(\d+)\/edit$/, page: 'students',        params: (m) => ({ mode: 'edit', id: m[1] }) },
+  { pattern: /^students\/(\d+)$/,       page: 'student-detail',  params: (m) => ({ id: m[1] }) },
+  { pattern: /^students$/,              page: 'students',        params: () => ({}) },
+  { pattern: /^courses$/,              page: 'courses',         params: () => ({}) },
+  { pattern: /^marks$/,                page: 'marks',           params: () => ({}) },
+  { pattern: /^attendance$/,           page: 'attendance',      params: () => ({}) },
+];
+
+let currentController = null; // AbortController for in-flight navigations
+
+async function navigate() {
+  // Cancel any previous page load.
+  currentController?.abort();
+  currentController = new AbortController();
+
+  const raw = window.location.hash.replace(/^#\/?/, '') || 'dashboard';
+  setActiveNav(raw.split('/')[0]);
+
+  let matched = null;
+  let params = {};
+  for (const route of routes) {
+    const m = raw.match(route.pattern);
+    if (m) {
+      matched = route;
+      params = route.params(m);
+      break;
+    }
+  }
+
+  const app = document.getElementById('app');
+  if (!app) return;
+
+  app.innerHTML = '<div class="page-loading" aria-live="polite" aria-label="Loading…"><div class="spinner"></div></div>';
+
+  if (!matched) {
+    app.innerHTML = '<div class="content-card"><h1 class="page-title">404 — Page Not Found</h1><p><a href="#dashboard">Go to dashboard</a></p></div>';
+    return;
+  }
+
+  try {
+    const mod = await import(`./pages/${matched.page}.js`);
+    if (currentController.signal.aborted) return;
+    await mod.render(app, params);
+  } catch (err) {
+    if (currentController.signal.aborted) return;
+    console.error('Page load error:', err);
+    app.innerHTML = `<div class="content-card error-state"><p>Failed to load page. <a href="#dashboard">Go home</a></p></div>`;
+  }
+
+  // Move focus to main for screen readers.
+  app.focus();
+}
 
 // ----------------------------------------------------------------
 // Active nav link highlighting
 // ----------------------------------------------------------------
 
-function setActiveNav() {
-  const hash = window.location.hash.replace('#', '') || 'dashboard';
-  // Match the route prefix (e.g. "students/123" → "students")
-  const route = hash.split('/')[0];
-
+function setActiveNav(route) {
   document.querySelectorAll('.nav-link').forEach((link) => {
     const linkRoute = link.dataset.route;
-    link.classList.toggle('is-active', linkRoute === route);
-    link.setAttribute('aria-current', linkRoute === route ? 'page' : 'false');
+    const isActive = linkRoute === route;
+    link.classList.toggle('is-active', isActive);
+    link.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
-}
-
-// ----------------------------------------------------------------
-// Page renderer (T-05 placeholder — replaced by router in T-18)
-// ----------------------------------------------------------------
-
-function render() {
-  const app = document.getElementById('app');
-  if (!app) return;
-
-  // T-05 acceptance criterion: show "Welcome to StudentHub" in #app.
-  app.innerHTML = `
-    <div style="text-align: center; padding: 4rem 2rem;">
-      <h1 style="font-size: 2rem; font-weight: 700; color: var(--color-neutral-900); margin-bottom: 1rem;">
-        Welcome to StudentHub
-      </h1>
-      <p style="color: var(--color-neutral-700); max-width: 480px; margin: 0 auto;">
-        A student management system for tracking students, courses, marks,
-        and attendance. Use the navigation on the left to get started.
-      </p>
-    </div>
-  `;
 }
 
 // ----------------------------------------------------------------
@@ -53,10 +90,10 @@ function render() {
 // ----------------------------------------------------------------
 
 function initSidebar() {
-  const sidebar    = document.getElementById('sidebar');
-  const overlay    = document.getElementById('sidebar-overlay');
-  const menuBtn    = document.getElementById('menu-btn');
-  const closeBtn   = document.getElementById('sidebar-close');
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('sidebar-overlay');
+  const menuBtn  = document.getElementById('menu-btn');
+  const closeBtn = document.getElementById('sidebar-close');
 
   if (!sidebar || !overlay || !menuBtn || !closeBtn) return;
 
@@ -82,18 +119,14 @@ function initSidebar() {
   closeBtn.addEventListener('click', closeSidebar);
   overlay.addEventListener('click', closeSidebar);
 
-  // Close sidebar when a nav link is clicked on mobile
   sidebar.querySelectorAll('.nav-link').forEach((link) => {
     link.addEventListener('click', () => {
       if (window.innerWidth < 1024) closeSidebar();
     });
   });
 
-  // Close sidebar on Escape key
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
-      closeSidebar();
-    }
+    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) closeSidebar();
   });
 }
 
@@ -103,13 +136,7 @@ function initSidebar() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initSidebar();
-  render();
-  setActiveNav();
+  navigate();
 });
 
-// Re-highlight nav on hash change (T-18 router will also call setActiveNav)
-window.addEventListener('hashchange', () => {
-  setActiveNav();
-  // T-18 will replace render() with a router call here.
-  render();
-});
+window.addEventListener('hashchange', navigate);
