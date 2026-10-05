@@ -27,14 +27,14 @@
   --color-neutral-900:  #0F172A;   /* primary text */
   --color-surface:      #FFFFFF;
 
-  /* ── Sidebar — deep blue ── */
-  --sidebar-bg:         #1E3A8A;   /* blue-900 */
-  --sidebar-bg-dk:      #172554;   /* blue-950 — header area */
+  /* ── Sidebar — matches landing page dark gradient ── */
+  --sidebar-bg:         #1e3a8a;   /* fallback flat colour */
+  --sidebar-bg-dk:      #0f172a;   /* header area — darkest point of landing gradient */
   --sidebar-hover:      rgba(255, 255, 255, 0.08);
-  --sidebar-active:     rgba(37, 99, 235, 0.30);
-  --sidebar-border:     rgba(255, 255, 255, 0.10);
-  --sidebar-text:       rgba(255, 255, 255, 0.80);
-  --sidebar-text-muted: rgba(255, 255, 255, 0.50);
+  --sidebar-active:     rgba(37, 99, 235, 0.35);
+  --sidebar-border:     rgba(255, 255, 255, 0.08);
+  --sidebar-text:       rgba(255, 255, 255, 0.82);
+  --sidebar-text-muted: rgba(255, 255, 255, 0.45);
 
   /* ── Typography ── */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -130,7 +130,7 @@ img    { max-width: 100%; display: block; }
 }
 
 /* ──────────────────────────────────────────────
-   SIDEBAR — deep professional blue
+   SIDEBAR — dark gradient matching landing page
    ────────────────────────────────────────────── */
 .sidebar {
   position: fixed;
@@ -138,29 +138,39 @@ img    { max-width: 100%; display: block; }
   left: 0;
   height: 100%;
   width: var(--sidebar-width);
-  background: var(--sidebar-bg);
+  /* Same gradient as landing page CTA band: deep dark → navy → blue */
+  background: linear-gradient(180deg,
+    #020617 0%,
+    #0f172a 25%,
+    #1e3a8a 70%,
+    #1d4ed8 100%);
   color: var(--sidebar-text);
   display: flex;
   flex-direction: column;
   z-index: 200;
   transform: translateX(-100%);
   transition: transform 0.25s ease;
-  /* thin right border gives a clean edge against the page */
   border-right: 1px solid rgba(255, 255, 255, 0.06);
+  /* Subtle grid-line texture — same as landing stats band */
+  background-image:
+    linear-gradient(180deg, #020617 0%, #0f172a 25%, #1e3a8a 70%, #1d4ed8 100%),
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
 }
 
 .sidebar.is-open {
   transform: translateX(0);
 }
 
-/* Header area — slightly darker blue for visual hierarchy */
+/* Header area — darkest point of gradient for visual hierarchy */
 .sidebar__header {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-5) var(--space-5);   /* uniform 1.25rem on all sides */
-  background: var(--sidebar-bg-dk);
-  border-bottom: 1px solid var(--sidebar-border);
+  padding: var(--space-5) var(--space-5);
+  background: rgba(2, 6, 23, 0.60);   /* #020617 at 60% — semi-transparent so gradient shows */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   min-height: 64px;
 }
 
@@ -230,7 +240,8 @@ img    { max-width: 100%; display: block; }
   color: #ffffff;
   border-left-color: #60A5FA;
   font-weight: 600;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.08),
+              0 0 20px rgba(37,99,235,0.20);
 }
 
 /* Icon — fixed width keeps all labels left-aligned */
