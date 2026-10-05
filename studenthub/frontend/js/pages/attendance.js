@@ -1,6 +1,6 @@
 /**
  * attendance.js — Attendance entry and view page.
- * design.md § 6.3 (Attendance Page), requirements.md US-18 through US-21
+ * Unchanged API/logic — UI improvements only.
  */
 
 import { studentsApi, attendanceApi } from '../api.js';
@@ -44,9 +44,15 @@ export async function render(container) {
               aria-required="true" aria-describedby="err-attended" />
             <span id="err-attended" data-error="attended" class="field-error" role="alert" hidden></span>
           </div>
+
+          <!-- Animated live preview — replaces plain attendance-preview div -->
           <div class="form-group form-group--full">
-            <div class="attendance-preview" id="att-preview" aria-live="polite" hidden>
-              Attendance: <strong id="att-pct-val"></strong>
+            <div class="att-live-preview" id="att-preview" aria-live="polite" hidden>
+              <div class="att-live-preview__label">Live Attendance</div>
+              <div class="att-live-preview__pct" id="att-pct-val">—</div>
+              <div class="att-live-preview__bar-wrap">
+                <div class="att-live-preview__bar-fill" id="att-pct-bar" style="width:0%"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -61,16 +67,17 @@ export async function render(container) {
     </div>
   `;
 
-  const studentSel  = document.getElementById('att-student-select');
-  const courseSel   = document.getElementById('att-course-select');
-  const totalInput  = document.getElementById('total-classes');
-  const attInput    = document.getElementById('attended');
-  const preview     = document.getElementById('att-preview');
-  const pctVal      = document.getElementById('att-pct-val');
-  const submitBtn   = document.getElementById('att-submit-btn');
-  const form        = document.getElementById('att-form');
+  const studentSel = document.getElementById('att-student-select');
+  const courseSel  = document.getElementById('att-course-select');
+  const totalInput = document.getElementById('total-classes');
+  const attInput   = document.getElementById('attended');
+  const preview    = document.getElementById('att-preview');
+  const pctVal     = document.getElementById('att-pct-val');
+  const pctBar     = document.getElementById('att-pct-bar');
+  const submitBtn  = document.getElementById('att-submit-btn');
+  const form       = document.getElementById('att-form');
 
-  let existingAttId = null;
+  let existingAttId    = null;
   let currentAttRecords = [];
 
   // Load all students.
@@ -88,12 +95,12 @@ export async function render(container) {
   studentSel.addEventListener('change', async () => {
     const sid = studentSel.value;
     courseSel.innerHTML = '<option value="">Loading…</option>';
-    courseSel.disabled = true;
-    submitBtn.disabled = true;
-    existingAttId = null;
-    totalInput.value = '';
-    attInput.value = '';
-    preview.hidden = true;
+    courseSel.disabled  = true;
+    submitBtn.disabled  = true;
+    existingAttId       = null;
+    totalInput.value    = '';
+    attInput.value      = '';
+    preview.hidden      = true;
     document.getElementById('att-table-card').hidden = true;
 
     if (!sid) { courseSel.innerHTML = '<option value="">Select student first…</option>'; return; }
@@ -111,7 +118,6 @@ export async function render(container) {
         '', 'Select course…'
       );
       courseSel.disabled = false;
-
       renderAttTable(currentAttRecords);
     } catch {
       courseSel.innerHTML = '<option value="">No enrolled courses</option>';
@@ -120,30 +126,36 @@ export async function render(container) {
 
   // On course change: prefill existing.
   courseSel.addEventListener('change', () => {
-    const cid = parseInt(courseSel.value, 10);
+    const cid     = parseInt(courseSel.value, 10);
     existingAttId = null;
     totalInput.value = '';
-    attInput.value = '';
-    preview.hidden = true;
+    attInput.value   = '';
+    preview.hidden   = true;
     submitBtn.disabled = !cid;
 
     if (!cid) return;
     const existing = currentAttRecords.find(a => a.course_id === cid);
     if (existing) {
-      totalInput.value  = existing.total_classes;
-      attInput.value    = existing.attended;
-      existingAttId     = existing.attendance_id;
+      totalInput.value = existing.total_classes;
+      attInput.value   = existing.attended;
+      existingAttId    = existing.attendance_id;
       updatePreview();
     }
   });
 
-  // Live % preview.
+  // Live animated preview.
   function updatePreview() {
     const pct = liveAttendancePct(totalInput.value, attInput.value);
     if (pct === null) { preview.hidden = true; return; }
+
     preview.hidden = false;
+    const isLow    = pct < 75;
+    const width    = Math.min(100, Math.max(0, pct)).toFixed(1);
+
     pctVal.textContent = pct.toFixed(2) + '%';
-    pctVal.className = pct < 75 ? 'text-danger' : 'text-success';
+    pctVal.className   = 'att-live-preview__pct' + (isLow ? ' att-live-preview__pct--low' : '');
+    pctBar.style.width = width + '%';
+    pctBar.className   = 'att-live-preview__bar-fill' + (isLow ? ' att-live-preview__bar-fill--low' : '');
   }
   totalInput.addEventListener('input', updatePreview);
   attInput.addEventListener('input', updatePreview);
@@ -159,15 +171,15 @@ export async function render(container) {
     const total = parseInt(totalInput.value, 10);
     const att   = parseInt(attInput.value, 10);
 
-    submitBtn.disabled = true;
+    submitBtn.disabled   = true;
     submitBtn.textContent = 'Saving…';
     try {
       if (existingAttId) {
         await attendanceApi.update(existingAttId, total, att);
-        toast.success('Attendance updated.');
+        toast.success('Attendance updated successfully.');
       } else {
         await attendanceApi.create({ student_id: sid, course_id: cid, total_classes: total, attended: att });
-        toast.success('Attendance recorded.');
+        toast.success('Attendance recorded successfully.');
       }
       const attResp = await studentsApi.attendance(sid);
       currentAttRecords = attResp.attendance ?? [];
@@ -178,7 +190,7 @@ export async function render(container) {
       if (err.fields) displayErrors(form, err.fields);
       else toast.error(err.error ?? 'Failed to save attendance.');
     } finally {
-      submitBtn.disabled = false;
+      submitBtn.disabled    = false;
       submitBtn.textContent = 'Save Attendance';
     }
   });
@@ -202,7 +214,7 @@ function renderAttTable(records) {
             <th scope="col">Course</th>
             <th scope="col">Total</th>
             <th scope="col">Attended</th>
-            <th scope="col">Percentage</th>
+            <th scope="col">Attendance</th>
           </tr>
         </thead>
         <tbody>
@@ -212,11 +224,24 @@ function renderAttTable(records) {
               <td>${escHtml(a.course_name)}</td>
               <td>${escHtml(String(a.total_classes))}</td>
               <td>${escHtml(String(a.attended))}</td>
-              <td>${attendanceBadge(a.percentage)}</td>
+              <td>${attendanceProgressCell(a.percentage)}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
   `;
+}
+
+function attendanceProgressCell(pct) {
+  const isLow   = pct < 75;
+  const fillCls = isLow ? 'att-progress-fill--low' : '';
+  const width   = Math.min(100, Math.max(0, pct)).toFixed(1);
+  return `
+    <div class="att-progress-wrap">
+      <div class="att-progress-bar">
+        <div class="att-progress-fill ${fillCls}" style="width:${width}%"></div>
+      </div>
+      ${attendanceBadge(pct)}
+    </div>`;
 }

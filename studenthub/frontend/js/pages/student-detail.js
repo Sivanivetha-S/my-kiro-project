@@ -1,10 +1,10 @@
 /**
  * student-detail.js — Full student profile page.
- * design.md § 6.3 (Student Detail Page), requirements.md US-03
+ * Unchanged API/logic — UI improvements: profile hero, progress bars.
  */
 
 import { studentsApi, coursesApi, enrollmentsApi } from '../api.js';
-import { escHtml, gradeBadge, attendanceBadge, formatDate } from '../utils.js';
+import { escHtml, gradeBadge, formatDate } from '../utils.js';
 import { toast } from '../components/toast.js';
 
 export async function render(container, params) {
@@ -12,10 +12,12 @@ export async function render(container, params) {
   container.innerHTML = `
     <div class="page-header">
       <a href="#students" class="btn btn--outline btn--sm">← Back to Students</a>
-      <h1 class="page-title" id="student-name-heading">Loading…</h1>
+      <h1 class="page-title" id="student-name-heading" style="font-size:1.25rem">Loading profile…</h1>
     </div>
     <div id="profile-content">
-      <div class="skeleton skeleton--card"></div>
+      <div class="skeleton skeleton--card" style="height:140px;margin-bottom:1.5rem"></div>
+      <div class="skeleton skeleton--row"></div>
+      <div class="skeleton skeleton--row"></div>
     </div>
   `;
 
@@ -36,13 +38,41 @@ export async function render(container, params) {
 }
 
 function renderProfile(container, profile, allCourses) {
-  document.getElementById('student-name-heading').textContent = profile.full_name;
+  const nameEl = document.getElementById('student-name-heading');
+  if (nameEl) nameEl.textContent = profile.full_name;
 
   const enrolledCourseIds = new Set((profile.courses ?? []).map(c => c.course_id));
-  const availableCourses = (allCourses ?? []).filter(c => !enrolledCourseIds.has(c.id));
+  const availableCourses  = (allCourses ?? []).filter(c => !enrolledCourseIds.has(c.id));
+
+  const avgMarks   = profile.average_marks   != null ? profile.average_marks.toFixed(2)   : '—';
+  const overallAtt = profile.overall_attendance != null ? profile.overall_attendance.toFixed(2) + '%' : '—';
+  const attLow     = profile.overall_attendance != null && profile.overall_attendance < 75;
 
   const content = document.getElementById('profile-content');
   content.innerHTML = `
+    <!-- Profile Hero -->
+    <div class="profile-hero" role="region" aria-label="Student profile summary">
+      <div class="profile-hero__avatar" aria-hidden="true">
+        ${escHtml(profile.full_name.charAt(0).toUpperCase())}
+      </div>
+      <div class="profile-hero__info">
+        <div class="profile-hero__name">${escHtml(profile.full_name)}</div>
+        <div class="profile-hero__meta">
+          <span>🎓 ${escHtml(profile.department)}</span>
+          <span>📅 Year ${escHtml(String(profile.year))} · Section ${escHtml(profile.section)}</span>
+          <span>🪪 <code style="color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.12);padding:1px 6px;border-radius:4px">${escHtml(profile.student_id)}</code></span>
+        </div>
+      </div>
+      <div class="profile-hero__stat">
+        <div class="profile-hero__stat-val">${avgMarks}</div>
+        <div class="profile-hero__stat-lbl">Avg Marks</div>
+      </div>
+      <div class="profile-hero__stat">
+        <div class="profile-hero__stat-val" style="${attLow ? 'color:#fca5a5' : ''}">${overallAtt}</div>
+        <div class="profile-hero__stat-lbl">Attendance</div>
+      </div>
+    </div>
+
     <div class="profile-grid">
       <!-- Info card -->
       <section class="content-card" aria-labelledby="info-heading">
@@ -53,31 +83,19 @@ function renderProfile(container, profile, allCourses) {
           <div class="info-row"><dt>Email</dt><dd>${escHtml(profile.email)}</dd></div>
           <div class="info-row"><dt>Phone</dt><dd>${escHtml(profile.phone || '—')}</dd></div>
           <div class="info-row"><dt>Department</dt><dd>${escHtml(profile.department)}</dd></div>
-          <div class="info-row"><dt>Year</dt><dd>${escHtml(String(profile.year))}</dd></div>
+          <div class="info-row"><dt>Year</dt><dd>Year ${escHtml(String(profile.year))}</dd></div>
           <div class="info-row"><dt>Section</dt><dd>${escHtml(profile.section)}</dd></div>
           <div class="info-row"><dt>Date of Birth</dt><dd>${formatDate(profile.dob)}</dd></div>
         </dl>
-        <div class="summary-badges">
-          <div class="summary-item">
-            <span class="summary-label">Avg Marks</span>
-            <span class="badge ${profile.average_marks != null ? 'badge--primary' : 'badge--neutral'}">
-              ${profile.average_marks != null ? profile.average_marks.toFixed(2) : '—'}
-            </span>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Overall Attendance</span>
-            ${attendanceBadge(profile.overall_attendance)}
-          </div>
-        </div>
         <div class="card-actions">
-          <a href="#students/${escHtml(String(profile.id))}/edit" class="btn btn--outline btn--sm">Edit Student</a>
+          <a href="#students/${escHtml(String(profile.id))}/edit" class="btn btn--outline btn--sm">✏️ Edit Student</a>
         </div>
       </section>
 
       <!-- Courses table -->
       <section class="content-card" aria-labelledby="courses-heading">
         <div class="section-header">
-          <h2 class="section-title" id="courses-heading">Enrolled Courses</h2>
+          <h2 class="section-title" id="courses-heading">Enrolled Courses (${(profile.courses ?? []).length})</h2>
           ${availableCourses.length ? `
           <div class="assign-form">
             <label for="assign-course-select" class="sr-only">Assign course</label>
@@ -87,11 +105,11 @@ function renderProfile(container, profile, allCourses) {
                 `<option value="${c.id}">${escHtml(c.course_code)} — ${escHtml(c.course_name)}</option>`
               ).join('')}
             </select>
-            <button class="btn btn--primary btn--sm" id="assign-btn">Assign</button>
+            <button class="btn btn--primary btn--sm" id="assign-btn">+ Assign</button>
           </div>` : ''}
         </div>
         <div id="courses-table-wrap">
-          ${renderCoursesTable(profile.courses ?? [], profile.id)}
+          ${renderCoursesTable(profile.courses ?? [])}
         </div>
       </section>
     </div>
@@ -101,26 +119,29 @@ function renderProfile(container, profile, allCourses) {
   const assignBtn = document.getElementById('assign-btn');
   if (assignBtn) {
     assignBtn.addEventListener('click', async () => {
-      const sel = document.getElementById('assign-course-select');
+      const sel      = document.getElementById('assign-course-select');
       const courseId = parseInt(sel.value, 10);
       if (!courseId) return;
+      assignBtn.disabled    = true;
+      assignBtn.textContent = 'Assigning…';
       try {
         await enrollmentsApi.create(profile.id, courseId);
-        toast.success('Course assigned.');
-        // Refresh the profile.
+        toast.success('Course assigned successfully.');
         const [updated, courses] = await Promise.all([studentsApi.get(profile.id), coursesApi.list()]);
         renderProfile(container, updated, courses);
       } catch (err) {
         toast.error(err.error ?? 'Failed to assign course.');
+        assignBtn.disabled    = false;
+        assignBtn.textContent = '+ Assign';
       }
     });
   }
 
-  // Wire remove enrollment buttons.
+  // Remove enrollment buttons.
   document.querySelectorAll('.remove-enrollment-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const courseName = btn.dataset.course;
-      if (!confirm(`Remove enrollment from "${courseName}"? This will also delete marks and attendance for this course.`)) return;
+      if (!confirm(`Remove enrollment from "${courseName}"?\n\nThis will also delete marks and attendance for this course.`)) return;
       try {
         await enrollmentsApi.delete(btn.dataset.enrollmentId);
         toast.success('Enrollment removed.');
@@ -133,9 +154,9 @@ function renderProfile(container, profile, allCourses) {
   });
 }
 
-function renderCoursesTable(courses, studentId) {
+function renderCoursesTable(courses) {
   if (!courses.length) {
-    return '<p class="empty-state">No courses enrolled yet.</p>';
+    return `<div class="empty-state" style="padding:2rem 1rem"><p>No courses enrolled yet. Use the assign dropdown above.</p></div>`;
   }
   return `
     <div class="table-wrap">
@@ -147,7 +168,7 @@ function renderCoursesTable(courses, studentId) {
             <th scope="col">Credits</th>
             <th scope="col">Marks</th>
             <th scope="col">Grade</th>
-            <th scope="col">Attendance %</th>
+            <th scope="col">Attendance</th>
             <th scope="col">Actions</th>
           </tr>
         </thead>
@@ -157,9 +178,9 @@ function renderCoursesTable(courses, studentId) {
               <td><code>${escHtml(c.course_code)}</code></td>
               <td>${escHtml(c.course_name)}</td>
               <td>${escHtml(String(c.credits))}</td>
-              <td>${c.marks != null ? escHtml(String(c.marks)) : '<span class="text-muted">—</span>'}</td>
+              <td>${c.marks != null ? `<strong>${escHtml(String(c.marks))}</strong>` : '<span class="text-muted">—</span>'}</td>
               <td>${gradeBadge(c.grade)}</td>
-              <td>${attendanceBadge(c.attendance_percentage)}</td>
+              <td>${attProgressCell(c.attendance_percentage)}</td>
               <td>
                 <button class="btn btn--sm btn--danger remove-enrollment-btn"
                   data-enrollment-id="${c.enrollment_id}"
@@ -174,4 +195,20 @@ function renderCoursesTable(courses, studentId) {
       </table>
     </div>
   `;
+}
+
+function attProgressCell(pct) {
+  if (pct == null) return '<span class="text-muted">—</span>';
+  const isLow   = pct < 75;
+  const fillCls = isLow ? 'att-progress-fill--low' : '';
+  const width   = Math.min(100, Math.max(0, pct)).toFixed(1);
+  const label   = pct.toFixed(1) + '%';
+  const colour  = isLow ? 'var(--color-danger)' : 'var(--color-neutral-700)';
+  return `
+    <div class="att-progress-wrap">
+      <div class="att-progress-bar">
+        <div class="att-progress-fill ${fillCls}" style="width:${width}%"></div>
+      </div>
+      <span class="att-progress-label" style="color:${colour}">${label}</span>
+    </div>`;
 }

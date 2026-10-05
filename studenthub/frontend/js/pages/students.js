@@ -85,7 +85,10 @@ export async function render(container, params = {}) {
 
 function renderTable(wrap, students) {
   if (!students.length) {
-    showEmpty(wrap, 'No students match your search.');
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <p>No students match your search. Try adjusting the filters.</p>
+      </div>`;
     return;
   }
   wrap.innerHTML = `
@@ -104,14 +107,14 @@ function renderTable(wrap, students) {
         </thead>
         <tbody>
           ${students.map(s => `
-            <tr>
+            <tr data-href="#students/${escHtml(String(s.id))}" title="View ${escHtml(s.full_name)}">
               <td><code>${escHtml(s.student_id)}</code></td>
-              <td>${escHtml(s.full_name)}</td>
+              <td><strong>${escHtml(s.full_name)}</strong></td>
               <td>${escHtml(s.email)}</td>
               <td>${escHtml(s.department)}</td>
-              <td>${escHtml(String(s.year))}</td>
+              <td>Year ${escHtml(String(s.year))}</td>
               <td>${escHtml(s.section)}</td>
-              <td class="actions">
+              <td class="actions" onclick="event.stopPropagation()">
                 <a href="#students/${escHtml(String(s.id))}" class="btn btn--sm btn--outline" aria-label="View ${escHtml(s.full_name)}">View</a>
                 <button class="btn btn--sm btn--outline edit-btn" data-id="${s.id}" aria-label="Edit ${escHtml(s.full_name)}">Edit</button>
                 <button class="btn btn--sm btn--danger delete-btn" data-id="${s.id}" data-name="${escHtml(s.full_name)}" aria-label="Delete ${escHtml(s.full_name)}">Delete</button>
@@ -122,6 +125,22 @@ function renderTable(wrap, students) {
       </table>
     </div>
   `;
+
+  // Wire clickable rows — but not when clicking action buttons.
+  wrap.querySelectorAll('tr[data-href]').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.setAttribute('tabindex', '0');
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.actions')) return;
+      window.location.hash = row.dataset.href;
+    });
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.target.closest('.actions')) {
+        e.preventDefault();
+        window.location.hash = row.dataset.href;
+      }
+    });
+  });
 
   // Wire edit buttons.
   wrap.querySelectorAll('.edit-btn').forEach(btn => {
