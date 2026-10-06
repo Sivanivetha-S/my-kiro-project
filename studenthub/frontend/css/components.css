@@ -147,7 +147,15 @@
 
 /* Search input icon wrapper */
 .search-wrap { position: relative; flex: 1; min-width: 200px; }
-.search-wrap .input { padding-left: 2.4rem; }
+.search-wrap .input {
+  padding-left: 2.4rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.search-wrap .input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+  background: #f5f8ff;
+}
 .search-wrap::before {
   content: '🔍';
   position: absolute;
