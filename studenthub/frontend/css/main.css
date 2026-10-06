@@ -229,11 +229,12 @@ img { max-width: 100%; display: block; }
 
 /* Active state — white underline + light tinted background */
 .nav-link.is-active {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.20);
   color: #ffffff;
-  font-weight: 600;
-  border-bottom-color: #60a5fa;
+  font-weight: 700;
+  border-bottom-color: #93c5fd;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
 }
 
 .nav-link__icon {
