@@ -309,9 +309,9 @@
   flex-shrink: 0;
   transition: background 0.22s ease, transform 0.22s ease;
 }
-.stat-card__body  { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.stat-card__value { font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-neutral-900); line-height: 1.15; letter-spacing: -0.02em; }
-.stat-card__label { font-size: var(--font-size-xs); font-weight: 600; color: var(--color-neutral-700); text-transform: uppercase; letter-spacing: 0.07em; }
+.stat-card__body  { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.stat-card__value { font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-neutral-900); line-height: 1.1; letter-spacing: -0.03em; }
+.stat-card__label { font-size: var(--font-size-xs); font-weight: 600; color: var(--color-neutral-700); text-transform: uppercase; letter-spacing: 0.08em; }
 
 /* ----------------------------------------------------------------
    Dashboard table layout
