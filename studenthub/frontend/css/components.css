@@ -271,6 +271,20 @@
   margin-bottom: var(--space-6);
 }
 
+/* Staggered entrance for stat cards */
+.stat-grid .stat-card {
+  animation: card-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stat-grid .stat-card:nth-child(1) { animation-delay: 0.00s; }
+.stat-grid .stat-card:nth-child(2) { animation-delay: 0.06s; }
+.stat-grid .stat-card:nth-child(3) { animation-delay: 0.12s; }
+.stat-grid .stat-card:nth-child(4) { animation-delay: 0.18s; }
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .stat-card {
   background: var(--color-surface);
   border: 1px solid var(--color-neutral-200);
@@ -752,7 +766,7 @@ code {
   .data-table tbody tr, .modal, .toast, .skeleton,
   .att-progress-fill, .att-live-preview__bar-fill,
   .grade-preview-pill, .modal-overlay, .modal-overlay--closing,
-  .info-row {
+  .info-row, .stat-grid .stat-card {
     animation: none !important;
     transition: none !important;
   }
