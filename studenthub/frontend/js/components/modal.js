@@ -78,9 +78,21 @@ export class Modal {
 
   /** Close the modal and return focus to the triggering element. */
   close() {
-    this._overlay.setAttribute('aria-hidden', 'true');
-    this._overlay.classList.remove('modal-overlay--visible');
-    document.body.classList.remove('modal-open');
+    // Play close animation, then remove the visible class.
+    this._overlay.classList.add('modal-overlay--closing');
+    const done = () => {
+      this._overlay.removeEventListener('animationend', done);
+      this._overlay.setAttribute('aria-hidden', 'true');
+      this._overlay.classList.remove('modal-overlay--visible');
+      this._overlay.classList.remove('modal-overlay--closing');
+      document.body.classList.remove('modal-open');
+    };
+    this._overlay.addEventListener('animationend', done, { once: true });
+    // Fallback: if animationend never fires (e.g. reduced-motion), clean up after 220ms.
+    setTimeout(() => {
+      if (this._overlay.classList.contains('modal-overlay--closing')) done();
+    }, 220);
+
     document.removeEventListener('keydown', this._keyHandler);
     this._triggerEl?.focus();
     this._opts.onClose?.();
