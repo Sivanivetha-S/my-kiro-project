@@ -42,6 +42,21 @@
 
 .btn--sm { padding: var(--space-1) var(--space-3); font-size: var(--font-size-xs); }
 
+/* Ghost variant — icon-style table actions */
+.btn--ghost {
+  background: transparent;
+  color: var(--color-neutral-700);
+  border-color: transparent;
+  padding: var(--space-1) var(--space-2);
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--color-neutral-100);
+  color: var(--color-primary);
+  border-color: var(--color-neutral-200);
+  transform: scale(1.08);
+}
+.btn--ghost:active:not(:disabled) { transform: scale(0.96); }
+
 /* ----------------------------------------------------------------
    Page header
    ---------------------------------------------------------------- */
