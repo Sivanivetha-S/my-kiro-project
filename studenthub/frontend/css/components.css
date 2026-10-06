@@ -582,14 +582,14 @@ body.modal-open { overflow: hidden; }
 .modal {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
-  box-shadow: 0 24px 64px rgba(15,23,42,0.22);
+  box-shadow: 0 28px 72px rgba(15,23,42,0.24), 0 4px 16px rgba(15,23,42,0.10);
   width: 100%;
   max-width: 640px;
   max-height: 90vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  animation: modal-in 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: modal-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .modal__header {
