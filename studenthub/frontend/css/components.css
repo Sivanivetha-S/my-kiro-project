@@ -211,11 +211,15 @@
   white-space: nowrap;
 }
 .data-table tbody tr {
-  transition: background 0.14s ease, transform 0.14s ease;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   cursor: default;
 }
 .data-table tbody tr:last-child td { border-bottom: none; }
-.data-table tbody tr:hover { background: var(--color-primary-xlt); }
+.data-table tbody tr:hover {
+  background: var(--color-primary-xlt);
+  transform: translateX(2px);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
 
 /* Clickable rows */
 .data-table tbody tr[data-href] { cursor: pointer; }
