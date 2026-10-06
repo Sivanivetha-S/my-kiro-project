@@ -173,13 +173,14 @@ img { max-width: 100%; display: block; }
 }
 
 .topnav__brand-tagline {
-  font-size: 0.6rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.55);
-  letter-spacing: 0.12em;
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.50);
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   line-height: 1;
-  display: none; /* hidden on mobile to save space */
+  display: none;
+  white-space: nowrap;
 }
 
 @media (min-width: 640px) {
