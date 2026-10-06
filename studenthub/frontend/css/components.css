@@ -250,8 +250,12 @@
 
 /* Clickable rows */
 .data-table tbody tr[data-href] { cursor: pointer; }
-.data-table tbody tr[data-href]:hover { background: var(--color-primary-lt); }
-.data-table tbody tr[data-href]:active { background: #bfdbfe; }
+.data-table tbody tr[data-href]:hover {
+  background: var(--color-primary-lt);
+  transform: translateX(3px);
+  box-shadow: inset 4px 0 0 var(--color-primary);
+}
+.data-table tbody tr[data-href]:active { background: #bfdbfe; transform: translateX(1px); }
 
 /* td action cell */
 .data-table td.actions {
