@@ -129,7 +129,8 @@
   color: var(--color-neutral-900);
   background: var(--color-surface);
   width: 100%;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+              background 0.2s ease, transform 0.15s ease;
 }
 .input:hover:not(:disabled):not([readonly]) {
   border-color: #93c5fd;
@@ -138,8 +139,9 @@
 .input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.14);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.16);
   background: #fff;
+  transform: translateY(-1px);
 }
 .input[readonly] { background: var(--color-neutral-50); color: var(--color-neutral-700); cursor: default; }
 .input[aria-invalid="true"] { border-color: var(--color-danger); box-shadow: 0 0 0 3px rgba(220,38,38,0.12); }
