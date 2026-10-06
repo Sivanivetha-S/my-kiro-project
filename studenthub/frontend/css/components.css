@@ -289,12 +289,21 @@
 .badge--warning { background: #fef3c7; color: #92400e; }
 
 /* Grade badges */
-.grade--aplus { background: #dcfce7; color: #15803d; }
-.grade--a     { background: #d1fae5; color: #065f46; }
-.grade--b     { background: var(--color-primary-lt); color: #1e40af; }
-.grade--c     { background: #fef3c7; color: #92400e; }
-.grade--d     { background: #ffedd5; color: #9a3412; }
-.grade--f     { background: #fee2e2; color: #991b1b; }
+.grade--aplus { background: #dcfce7; color: #15803d; font-weight: 700; letter-spacing: 0.04em; }
+.grade--a     { background: #d1fae5; color: #065f46; font-weight: 700; letter-spacing: 0.04em; }
+.grade--b     { background: var(--color-primary-lt); color: #1e40af; font-weight: 700; letter-spacing: 0.04em; }
+.grade--c     { background: #fef3c7; color: #92400e; font-weight: 700; letter-spacing: 0.04em; }
+.grade--d     { background: #ffedd5; color: #9a3412; font-weight: 700; letter-spacing: 0.04em; }
+.grade--f     { background: #fee2e2; color: #991b1b; font-weight: 700; letter-spacing: 0.04em; }
+
+/* Grade badge hover - subtle pulse */
+.badge[class*="grade--"] {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.badge[class*="grade--"]:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
 
 /* ----------------------------------------------------------------
    Stat cards — unified blue, with hover lift
